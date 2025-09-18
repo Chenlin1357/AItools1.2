@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智教</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+                /* 文字内容与视频中间对齐 */
+        .text-content {
+            flex: 1;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 模块网格布局 */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .module-card::after {
+            content: "点击查看";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .module-card:hover::after {
+            opacity: 1;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .main-title {
+            text-align: center;
+            margin: 30px 0 50px 0;
+        }
+        
+        .main-title h1 {
+            font-size: 100px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #000000, #333333);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 五个大框布局 */
+        .five-box-layout {
+            display: flex;
+            height: calc(100vh - 280px);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .big-box {
+            flex: 1;
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            color: white;
+            min-height: 300px;
+        }
+
+        .big-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .big-box h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .big-box p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* 五个框的颜色 */
+        .box-red {
+            background: linear-gradient(135deg, #ff6b6b, #c0392b);
+        }
+
+        .box-yellow {
+            background: linear-gradient(135deg, #feca57, #e67e22);
+        }
+
+        .box-green {
+            background: linear-gradient(135deg, #1dd1a1, #27ae60);
+        }
+
+        .box-blue {
+            background: linear-gradient(135deg, #54a0ff, #2980b9);
+        }
+
+        .box-purple {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        /* 内容区域 */
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: #2980b9;
+        }
+
+        /* 文本布局 */
+        .media-layout {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .text-content {
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        /* 视频布局 */
+        .video-content {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .video-placeholder {
+            text-align: center;
+            color: #666;
+        }
+
+        /* 图片布局 */
+        .image-gallery {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 模态窗口 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .five-box-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .big-box {
+                min-height: 200px;
+                padding: 20px;
+            }
+            
+            .main-title h1 {
+                font-size: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-title h1 {
+                font-size: 50px;
+            }
+            
+            .big-box h3 {
+                font-size: 22px;
+            }
+            
+            .big-box p {
+                font-size: 16px;
+            }
+            
+            .media-layout {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-title">
+            <h1>AI智教</h1>
+        </div>
+
+        <!-- 五个大框布局 -->
+        <div class="five-box-layout" id="mainLayout">
+            <div class="big-box box-red" onclick="showSection('createAgent')">
+                <h3>🤖 创建智能体</h3>
+                <p>搭建口语教学智能交互体</p>
+            </div>
+            <div class="big-box box-yellow" onclick="showSection('aiGrading')">
+                <h3>📚 AI批改作业</h3>
+                <p>智能批改英语作业</p>
+            </div>
+            <div class="big-box box-green" onclick="showSection('textToMusic')">
+                <h3>🎵 文生音乐</h3>
+                <p>依据文意生成相关音乐</p>
+            </div>
+            <div class="big-box box-blue" onclick="showSection('textToVideo')">
+                <h3>📹 文生视频</h3>
+                <p>依据文意生成动态演示视频</p>
+            </div>
+            <div class="big-box box-purple" onclick="showSection('AiCourse')">
+                <h3>👏 AI融入课堂</h3>
+                <p>多种AI教学应用模式</p>
+            </div>
+        </div>
+
+        <!-- 以下是保留的内容区域 -->
+        <!-- 创建智能体 -->
+        <div id="createAgent" class="content-section">
+            <button class="back-button" onclick="showMainLayout()">← 返回首页</button>
+            <h2>🤖 创建智能体</h2>
+            <div class="media-layout">
+                <div class="text-content">
+                    <p>需要用到的平台有：（点击文字即可跳转）</p>
+                    <p><a href="https://chatglm.cn/main/alltoolsdetail?lang=zh" target="_blank">智谱清言</a></p>
+                    
+                    <ol>
+                        <li>登录智谱清言，在左侧导航栏点击或进入“智能体中心”，点击“创建智能体”按钮</li>
+                        <li>对智能体进行基础设定
+                            <ul>
+                                <li>填写智能体名称、上传头像、编写描述、选择模型、设定回答风格等</li>
+                                <li>可选择进行“高级设置”：配置知识库、指令、开场白等</li>
+                            </ul>
+                        </li>
+                        <li>完成所有设定后，点击页面下方的“发布”或“创建”按钮，即可完成智能体的创建</li>
+                    </ol>
+                    
+                </div>
+                <div class="video-content">
+                    <div class="video-player">
+                        <video id="agentVideo" controls width="600" height="520">
+                            <source src="/uploads/agent_tutorial.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI批改作业 -->
+        <div id="aiGrading" class="content-section">
+            <button class="back-button" onclick="showMainLayout()">← 返回首页</button>
+            <h2>📝 AI批改作业</h2>
+            <div class="media-layout">
+                <div class="text-content">
+                    <p>需要用到的平台有：（点击文字即可跳转）</p>
+                    <p><a href="https://www.pigaibang.com/" target="_blank">批改邦</a></p>
+                    <ol>
+                        <li>点击"作文批改"上传学生作文</li>
+                        <li>可选择默认标准或题目自拟</li>
+                        <li>提交批改完后点击下方"点击查看"，可查看旁批、分数、详细点评、改进建议、原文对比</li>
+                    </ol>
+                    
+                </div>
+                <div class="video-content">
+                    <div class="video-player">
+                        <video id="gradingVideo" controls width="600" height="520">
+                            <source src="/uploads/grading_tutorial.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文生音乐 -->
+        <div id="textToMusic" class="content-section">
+            <button class="back-button" onclick="showMainLayout()">← 返回首页</button>
+            <h2>🎵 文生音乐</h2>
+            <div class="media-layout">
+                <div class="text-content">
+                    <p>需要用到的平台有：（点击文字即可跳转）</p>
+                    <p><a href="https://www.doubao.com/chat/" target="_blank">豆包</a></p>
+                    <p><a href="https://www.kimi.com/" target="_blank">Kimi</a></p>
+                    <p><a href="https://musichero.ai/zh-CN/app" target="_blank">Music Hero</a></p>
+                    <ol>
+                        <li>利用豆包提取单元句子、主题、单词</li>
+                        <li>借助Kimi，依据设定的词汇、主题、句子及难度要求，生成符合条件的英文歌曲歌词</li>
+                        <li>将歌词导入Music Hero，再选伴奏类型、标题等生成音乐</li>
+                    </ol>
+                </div>
+                <div class="video-content">
+                    <div class="video-player">
+                        <video id="textToMusicVideo" controls width="600" height="520">
+                            <source src="/uploads/text_to_music_tutorial.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文生视频 -->
+        <div id="textToVideo" class="content-section">
+            <button class="back-button" onclick="showMainLayout()">← 返回首页</button>
+            <h2>🎥 文生视频</h2>
+            <div class="media-layout">
+                <div class="text-content">
+                    <p>需要用到的平台有：（点击文字即可跳转）</p>
+                    <p><a href="https://www.doubao.com/chat/" target="_blank">豆包</a></p>
+                    <p><a href="https://jimeng.jianying.com/" target="_blank">即梦AI</a></p>
+                    <p><a href="https://jimeng.jianying.com/" target="_blank">剪映</a></p>
+                    <ol>
+                        <li>打开豆包，点击图像生成</li>
+                        <li>上传课本人物图片，点击方框中的"风格"键，图片风格选择"3D渲染"，可以加入一些人物形象描述，生成的形象更接近课本人物</li>
+                        <li>渲染完成后，点击方框中的下载键，保存，同样步骤生成其他课本人物的3D形象</li>
+                        <li>打开"即梦AI"，点击"灵感"，点击"数字人"</li>
+                        <li>点击方框里的两个图标，分别上传3D人物图片与音频</li>
+                        <li>在文本朗读的框内输入课本对话原文，音色可根据人物特征选择，女孩则用"小女孩"，男孩则用"小男孩"</li>
+                        <li>浏览视频后，点击方框中的下载键，即可保存。按照同样步骤，依次生成其他课本人物的说话视频</li>
+                        <li>打开"剪映"，点击"素材"，之后点击"导入"，导入所有3D人物静态图像，3D人物说话视频以及校园背景（校园背景可使用浏览器搜索保存），按所需顺序拖入下方时间轴轨道(当一个人物在说话时，另一个人物只需在时间轴上导入静态图片），接着在轨道上调整各素材的位置，精准对齐，搭建起视频的基础剪辑框架 ，为后续添加抠像操作做准备</li>
+                        <li>在剪映操作界面，先选中需处理头像的图片并点击画面区域，接着点击"自定义抠像"，选择"智能画笔"，使用蓝色画笔沿人物轮廓描绘一笔，软件自动识别并抠取人物边缘，最后点击"应用效果"</li>
+                        <li>完成人物头像的抠取及效果应用</li>
+                        <li>按照前述操作流程，选取更多人物素材，依次拖入时间轴轨道，重复"点击画面 - 自定义抠像 - 智能画笔描绘抠像 - 应用效果"步骤，将处理好的人物素材有序排列，完成多人物的导入、头像抠取及布局排版</li>
+                        <li>添加字幕时，先点击"字幕"，选择"字幕模板"，随机选一个模板，点击右侧"文本"按键，在文本框填入对应对话，点击"保存预设" ，按此流程为不同场景添加字幕</li>
+                        <li>点击方框中的"导出"键，即可保存视频</li>
+                    </ol>
+                    
+                </div>
+                <div class="video-content">
+                    <div class="video-player">
+                        <video id="textToVideoVideo" controls width="600" height="520">
+                            <source src="/uploads/text_to_video_tutorial.mp4" type="video/mp4">
+                            您的浏览器不支持HTML5视频播放
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI融入课堂 -->
+        <div id="AiCourse" class="content-section">
+            <button class="back-button" onclick="showMainLayout()">← 返回首页</button>
+            <h2>👏 AI融入课堂</h2>
+            <p>选择您想要了解的教学模式：</p>
+            
+            <div class="module-grid">
+                <div class="module-card" onclick="showImageGallery('文字微镜头')">
+                    <h3>📝 文字微镜头</h3>
+                    <p>文字教学的AI创新应用</p>
+                </div>
+                <div class="module-card" onclick="showImageGallery('AI出题')">
+                    <h3>📕 AI出题</h3>
+                    <p>图像与视觉辅助教学</p>
+                </div>
+                <div class="module-card" onclick="showImageGallery('拓展知识')">
+                    <h3>🔄 拓展知识</h3>
+                    <p>师生互动的AI增强模式</p>
+                </div>
+                <div class="module-card" onclick="showImageGallery('布置作业')">
+                    <h3>📊 布置作业</h3>
+                    <p>AI辅助的学习评估</p>
+                </div>
+            </div>
+        </div>
+
+                <!-- 图片轮播模态框 -->
+        <div id="imageGalleryModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <h2 id="galleryTitle"></h2>
+                <div class="gallery-container" style="position: relative; text-align: center;">
+                    <button class="gallery-nav" onclick="prevImage()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer;">❮</button>
+                    
+                    <img id="galleryImage" src="" alt="" style="max-width: 100%; max-height: 500px; border-radius: 10px;">
+                    
+                    <button class="gallery-nav" onclick="nextImage()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer;">❯</button>
+                    
+                    <div style="margin-top: 15px;">
+                        <span id="imageCounter"></span>
+                    </div>
+                </div>
+                <button onclick="closeModal()" style="margin-top: 20px; padding: 10px 20px; background: #9b59b6; color: white; border: none; border-radius: 5px; cursor: pointer;">关闭</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 显示内容区域并隐藏主布局
+        function showSection(sectionId) {
+            // 隐藏主布局
+            document.getElementById('mainLayout').style.display = 'none';
+            
+            // 隐藏所有内容区域
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 显示选中的内容区域
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.style.display = 'block';
+                
+                // 滚动到页面顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 显示主布局并隐藏所有内容区域
+        function showMainLayout() {
+            // 显示主布局
+            document.getElementById('mainLayout').style.display = 'flex';
+            
+            // 隐藏所有内容区域
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // 滚动到页面顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 视频控制函数
+        function playVideo(videoId) {
+            const video = document.getElementById(videoId);
+            if (video) {
+                video.play().catch(error => {
+                    console.error('播放失败:', error);
+                    alert('视频播放失败，请检查文件路径');
+                });
+            }
+        }
+
+        function pauseVideo(videoId) {
+            const video = document.getElementById(videoId);
+            if (video) {
+                video.pause();
+            }
+        }
+
+        function toggleFullscreen(videoId) {
+            const video = document.getElementById(videoId);
+            if (video) {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            }
+        }
+
+        // 图片轮播相关函数
+        let currentGallery = '';
+        let currentImageIndex = 0;
+        const galleryImages = {
+            '文字微镜头': [
+                'uploads/AICOURSE1.jpg',
+                'uploads/AICOURSE2.jpg',
+                'uploads/AICOURSE3.jpg',
+                'uploads/AICOURSE4.jpg',
+                'uploads/AICOURSE5.jpg',
+                'uploads/AICOURSE6.jpg',
+                'uploads/AICOURSE7.jpg',
+                'uploads/AICOURSE8.jpg',
+                'uploads/AICOURSE9.jpg'
+            ],
+            'AI出题': [
+                'uploads/QUESTION1.png',
+                'uploads/QUESTION2.png',
+                'uploads/QUESTION3.png',
+                'uploads/QUESTION4.png'
+            ],
+            '拓展知识': [
+                'uploads/KNOWLEDGE1.png',
+                'uploads/KNOWLEDGE2.png',
+                'uploads/KNOWLEDGE3.png'
+            ],
+            '布置作业': [
+                'uploads/HOMEWORK1.png',
+                'uploads/HOMEWORK2.png',
+                'uploads/HOMEWORK3.png'
+            ]
+        };
+
+        function showImageGallery(galleryName) {
+            currentGallery = galleryName;
+            currentImageIndex = 0;
+            
+            document.getElementById('galleryTitle').textContent = galleryName;
+            document.getElementById('imageGalleryModal').style.display = 'flex';
+            
+            showCurrentImage();
+        }
+
+        function showCurrentImage() {
+            const images = galleryImages[currentGallery];
+            if (images && images.length > 0) {
+                document.getElementById('galleryImage').src = images[currentImageIndex];
+                document.getElementById('imageCounter').textContent = `${currentImageIndex + 1} / ${images.length}`;
+            }
+        }
+
+        function prevImage() {
+            const images = galleryImages[currentGallery];
+            if (images && images.length > 0) {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showCurrentImage();
+            }
+        }
+
+        function nextImage() {
+            const images = galleryImages[currentGallery];
+            if (images && images.length > 0) {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showCurrentImage();
+            }
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        };
+    </script>
+</body>
+</html>

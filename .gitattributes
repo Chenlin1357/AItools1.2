@@ -1,0 +1,21 @@
+# 对所有文件，在入库时统一转换为LF，在检出时（工作区）不转换
+* text=auto eol=lf
+
+# 明确将以下类型的文件视为文本文件，并进行换行符转换
+*.js text
+*.html text
+*.css text
+*.md text
+*.txt text
+
+# 将以下文件视为二进制文件，告诉Git不要碰它们（不进行换行符转换和差异比较）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
